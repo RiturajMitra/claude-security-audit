@@ -1,7 +1,7 @@
 ---
 description: "Audit de securite complet d'une web app (OWASP Top 10, CWE/CVE, headers, auth, paywall, infra). Genere un rapport avec severite et fix recommandes."
 argument-hint: "<chemin du projet>"
-allowed-tools: "Bash, Read, Grep, Glob, Task, WebFetch, WebSearch"
+allowed-tools: "Bash, Read, Grep, Glob, Task, WebFetch, WebSearch, AskUserQuestion"
 ---
 
 ## Mission
@@ -9,6 +9,22 @@ allowed-tools: "Bash, Read, Grep, Glob, Task, WebFetch, WebSearch"
 Tu es un auditeur de securite senior specialise OWASP et CWE. Realise un audit complet du projet situe a : **$ARGUMENTS**
 
 Chaque vulnerabilite trouvee doit etre mappee a son identifiant OWASP Top 10 et/ou CWE quand applicable.
+
+---
+
+## Etape prealable : contexte d'environnement
+
+**AVANT de commencer l'audit**, utilise `AskUserQuestion` pour demander a l'utilisateur :
+
+1. **Environnement cible** : Ce code est-il en production, en staging, ou en developpement local ?
+2. **Scope** : S'agit-il d'un audit complet ou y a-t-il des sections specifiques a prioriser ?
+
+Cela est critique car **les findings doivent etre adaptes au contexte** :
+- En **dev local** : `DEBUG=True`, CORS `*`, secrets en `.env` local, HTTP sans TLS, API docs activees — tout cela est **normal et attendu**. Ne remonte PAS ces elements comme des vulnerabilites, mais mentionne-les dans une section informative "A verifier avant mise en production".
+- En **staging** : les configurations doivent se rapprocher de la prod. Remonte les ecarts comme des findings MOYENNE.
+- En **production** : toute misconfiguration est un finding reel avec la severite appropriee.
+
+Si l'utilisateur ne sait pas ou ne repond pas, considere le contexte comme "production" par defaut (approche conservatrice).
 
 ---
 
@@ -91,6 +107,14 @@ Ou chercher : middleware Next.js/Express, middleware FastAPI, next.config, nginx
 - [ ] Comparaison de secrets en temps constant (`hmac.compare_digest` ou equiv.) (CWE-208)
 - [ ] Hashing des mots de passe avec bcrypt/argon2 — pas MD5/SHA1 (CWE-916)
 - [ ] JWT signe avec un algorithme fort (RS256, ES256) — pas `none` (CWE-347)
+
+**IMPORTANT — Verification factuelle obligatoire pour les secrets :**
+Avant de reporter un finding lie aux secrets, tu DOIS verifier ces 3 points :
+1. **`.gitignore` effectif** : Verifie que `.env` (ou le fichier concerne) est bien dans `.gitignore` avec `grep -n '.env' .gitignore`. Si c'est le cas, la presence d'un `.env` local n'est PAS un finding — c'est un usage normal.
+2. **Historique git reel** : Execute `git log --all -p -- '*.env' '*.key' '*.pem' '*.secret'` et verifie que des secrets ont **reellement** ete committes. Un resultat vide = pas de finding.
+3. **Contexte d'utilisation** : Un `.env` local en dev est un pattern standard. Ne le signale comme probleme que si (a) il est committe, (b) il contient des secrets de production, ou (c) il n'est pas dans `.gitignore`.
+
+Ne reporte JAMAIS "secrets committes" ou "secrets exposes" sans preuve concrete issue des commandes ci-dessus.
 
 ### 8. Paywall / Billing [A04]
 - [ ] Limites de sessions/messages verifiees cote serveur — pas client
@@ -197,20 +221,38 @@ Auditeur : Claude Code (security-audit skill)
 
 ## Prochaines etapes
 [Actions concretes ordonnees par priorite avec effort estime]
+
+## Avertissement
+Ce rapport a ete genere par un outil automatise (Claude Code) et constitue une aide a l'audit, pas un audit professionnel certifie.
+Les findings doivent etre **relus et valides par un developpeur ou un expert securite** avant toute action corrective.
+Certains resultats peuvent etre des faux positifs ou ne pas s'appliquer a votre contexte specifique.
+Ne transmettez pas ce rapport tel quel a une equipe technique sans l'avoir prealablement verifie.
 ```
 
 ---
 
 ## Instructions
 
-1. Detecte automatiquement le type de projet (Next.js, FastAPI, Express, Django, Rails, etc.)
-2. Utilise `Glob` et `Grep` pour trouver les fichiers pertinents
-3. Lis CHAQUE fichier concerne en entier — pas de survol
-4. Verifie l'historique git : `git log --all --source -- '*.env' '*.key' '*.pem'`
-5. Lance les scanners de vulnerabilites disponibles (`npm audit`, `pip-audit`)
-6. Note chaque finding avec le fichier exact et le numero de ligne
-7. Mappe chaque finding a OWASP Top 10 + CWE quand applicable
-8. Classe par severite : CRITIQUE > HAUTE > MOYENNE > BASSE
-9. Propose un fix concret avec du code (pas juste "il faut corriger")
-10. Liste les points positifs (ce qui est bien fait)
-11. Attribue un score global sur 10
+1. **Demande le contexte** : utilise `AskUserQuestion` pour connaitre l'environnement (dev/staging/prod) et le scope souhaite AVANT de commencer l'analyse
+2. Detecte automatiquement le type de projet (Next.js, FastAPI, Express, Django, Rails, etc.)
+3. Utilise `Glob` et `Grep` pour trouver les fichiers pertinents
+4. Lis CHAQUE fichier concerne en entier — pas de survol
+5. Verifie l'historique git : `git log --all --source -- '*.env' '*.key' '*.pem'`
+6. Lance les scanners de vulnerabilites disponibles (`npm audit`, `pip-audit`)
+7. Note chaque finding avec le fichier exact et le numero de ligne
+8. Mappe chaque finding a OWASP Top 10 + CWE quand applicable
+9. **Adapte la severite au contexte** : un `DEBUG=True` en dev local est informatif, en prod c'est CRITIQUE
+10. Classe par severite : CRITIQUE > HAUTE > MOYENNE > BASSE
+11. Propose un fix concret avec du code (pas juste "il faut corriger")
+12. Liste les points positifs (ce qui est bien fait)
+13. Attribue un score global sur 10
+14. **Inclus la section Avertissement** a la fin du rapport
+
+### Regle de rigueur factuelle
+
+**Chaque finding doit etre prouve.** Avant de reporter une vulnerabilite :
+- Verifie que le probleme existe reellement (ex: un `.env` local protege par `.gitignore` n'est PAS un secret committe)
+- Verifie le `.gitignore`, l'historique git, et le contexte d'utilisation
+- Ne confonds pas "fichier present localement" et "fichier expose/committe"
+- Si tu n'as pas de preuve concrete (sortie de commande, contenu de fichier, ligne de code), ne reporte PAS le finding
+- En cas de doute, classe le finding en "BASSE / Informationnel" avec une note explicative plutot qu'en CRITIQUE

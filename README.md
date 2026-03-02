@@ -9,6 +9,9 @@ Skill [Claude Code](https://docs.anthropic.com/en/docs/claude-code) pour réalis
 - **Scan automatique des dépendances** : `npm audit`, `pip-audit`, versions des frameworks
 - **Rapport structuré** avec sévérité (CRITIQUE → HAUTE → MOYENNE → BASSE), fichier:ligne, et fix recommandé avec code
 - **Score global sur 10**
+- **Adapté au contexte** : demande si le code est en dev, staging ou production avant d'auditer — évite les faux positifs sur les configs normales en développement
+- **Vérification factuelle** : chaque finding est prouvé par des commandes réelles (historique git, .gitignore, contenu de fichier) — pas de faux positifs basés sur des suppositions
+- **Disclaimer intégré** : le rapport inclut un avertissement rappelant qu'il doit être relu par un humain compétent avant action
 
 ## Installation
 
@@ -32,7 +35,7 @@ Dans Claude Code, lance :
 /security-audit /chemin/vers/ton/projet
 ```
 
-Claude va analyser l'ensemble du projet et générer un rapport complet.
+Claude va d'abord te demander le contexte (environnement, scope), puis analyser l'ensemble du projet et générer un rapport adapté.
 
 ## Exemple de rapport généré
 
@@ -57,6 +60,12 @@ points d'attention sur les headers HTTP et la validation des inputs.
 
 ## Score global
 7/10
+
+## Avertissement
+Ce rapport a été généré par un outil automatisé (Claude Code) et constitue
+une aide à l'audit, pas un audit professionnel certifié. Les findings doivent
+être relus et validés par un développeur ou un expert sécurité avant toute
+action corrective.
 ```
 
 ## Licence
